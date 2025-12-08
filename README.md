@@ -10,6 +10,8 @@
 <div align="center"><strong>支持自定义模型,伤害,攻击频率,范围,次数限制,金钱限制,管理员权限,自定义特效等。</p></div>
 </div>
 
+---
+
 📦 创意工坊示例（炮塔 模型/音效等）
 
 
@@ -129,6 +131,8 @@ CS2 Automated Machine Gun Turret Plugin (Based on Swiftly2 Framework)
 This plugin introduces an automated machine gun turret feature for CS2, developed using the Swiftly2 framework.
 
 It supports extensive custom configuration options. It allows for customization of the model, damage, fire rate, range, usage limits, money restrictions, admin permissions, custom effects, and more.
+
+---
 
 📦 Workshop Resource Example (Turret Model/Sound Effects, etc.)
 The plugin can be used in conjunction with the following Workshop resources (example): Resource ID: 3618032051

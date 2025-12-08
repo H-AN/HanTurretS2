@@ -1,3 +1,5 @@
+using System;
+using System.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SwiftlyS2.Shared;
@@ -234,6 +236,7 @@ public class HanTurretEffectService
         CBeam beam = _core.EntitySystem.CreateEntity<CBeam>();
         if (beam == null)
             return;
+        beam.DispatchSpawn();
 
         beam.Render = color;
         beam.Width = 0.5f;
@@ -242,18 +245,7 @@ public class HanTurretEffectService
         beam.Teleport(startPos, new SwiftlyS2.Shared.Natives.QAngle(0, 0, 0), new SwiftlyS2.Shared.Natives.Vector(0, 0, 0));
         beam.EndPos = endPos;
 
-
-        beam.DispatchSpawn();
-
-        _core.Scheduler.DelayBySeconds(0.1f, () =>
-        {
-            if (beam != null && beam.IsValid)
-            {
-                beam.TurnedOff = true;
-                beam.TurnedOffUpdated();
-            }
-        });
-
+        beam.AddEntityIOEvent("Kill", "", null!, null!,  0.1f);
     }
 
 }

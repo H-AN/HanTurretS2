@@ -1,0 +1,7 @@
+{
+  "HanTurretS2MainCFG": {
+    "MenuCommand": "sw_turret",
+    "TurretBaseModel": "models/stk_sentry_guns/sentry/base.vmdl",
+    "TurretPhysboxModel": "models/stk_sentry_guns/sentry/sentry_physbox.vmdl"
+  }
+}

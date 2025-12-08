@@ -1,0 +1,20 @@
+{
+    "MenuTitle": "[H-AN/Turret] Turret Selection Menu",
+    "MenuSelelctTurret": "Select the turret you want to create",
+	"FreeText": "Free",
+	"NoMoney": "You don't have enough money.",
+	"MenuLimitText": "Limit",
+	"LimitText": "∞",
+    "ServerCfgChange": "[H-AN/Turret] Turret configuration file has been hot-reloaded!",
+    "MustBeAlive": "[H-AN/Turret] You must be alive to open this menu",
+    "TurretLimit": "[H-AN/Turret] You have reached the building limit for this turret: maximum {0}",
+    "MuzzleError": "[H-AN/Turret] Error: ToggleMuzzle particle not found",
+    "TracerError": "[H-AN/Turret] Error: CreateTracer particle not found",
+    "TracerColorError": "[H-AN/Turret] Error: CreateTracer failed to parse color string {0}",
+    "GlowColorError": "[H-AN/Turret] Error: SetGlow failed to parse color string {0}",
+    "CanFindTurretName": "[H-AN/Turret] Error: Cannot find turret named {0}, either not enabled or not configured!",
+	"MenuButtonMove": "Move",
+	"MenuButtonConfirm": "Confirm",
+	"MenuButtonCancel": "Cancel",
+	"TurretNameError": "The turret named {0} was not found. Please check the configuration!"
+}

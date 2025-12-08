@@ -1,0 +1,20 @@
+{
+	"MenuTitle": "[H-AN/炮塔]炮塔选择菜单",
+	"MenuSelelctTurret": "选择你想制造的炮塔",
+	"FreeText": "免费",
+	"NoMoney": "金钱不足",
+	"MenuLimitText": "限制",
+	"LimitText": "∞",
+	"ServerCfgChange": "[H-AN/炮塔]炮塔配置文件已热更新重载!",
+	"MustBeAlive": "[H-AN/炮塔]你必须活着才能打开此菜单",
+	"TurretLimit": "[H-AN/炮塔]你已经达到了此炮塔的建造上限: 最多 {0}个",
+	"MuzzleError": "[H-AN/炮塔]错误: ToggleMuzzle 找不到粒子",
+	"TracerError": "[H-AN/炮塔]错误: CreateTracer 找不到粒子",
+	"TracerColorError": "[H-AN/炮塔]错误: CreateTracer 颜色解析失败 字符串 {0}",
+	"GlowColorError": "[H-AN/炮塔]错误: SetGlow 颜色解析失败 字符串 {0}",
+	"CanFindTurretName": "[H-AN/炮塔]错误: 找不到名称为 {0} 的炮塔 未启用或未配置！",
+	"MenuButtonMove": "移动",
+	"MenuButtonConfirm": "确认",
+	"MenuButtonCancel": "取消",
+	"TurretNameError": "未找到名为 {0} 的炮塔,请查看配置!"
+}

@@ -10,6 +10,13 @@
 <div align="center"><strong>支持自定义模型,伤害,攻击频率,范围,次数限制,金钱限制,管理员权限,自定义特效等。</p></div>
 </div>
 
+<div align="center">
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z31PY52N)
+  
+
+</div>
+
 ---
 
 📦 创意工坊示例（炮塔 模型/音效等）

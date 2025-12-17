@@ -109,13 +109,17 @@ public class HanTurretS2Service
 
         Physics.DispatchSpawn();
 
+        var turretHandle = _core.EntitySystem.GetRefEHandle(Physics);
+        if (!turretHandle.IsValid)
+            return null;
+
         Physics.Teleport(Pos, null, null);
 
         string propName = $"华仔炮塔_{Random.Shared.Next(1000000, 9999999)}";
         Physics!.Entity!.Name = propName;
 
 
-        _globals.TurretData[Physics.Index] = new Turrets
+        var turretData = new Turrets
         {
             Name = turret.Name,
             Model = turret.Model,
@@ -135,19 +139,36 @@ public class HanTurretS2Service
             MuzzleAttachment = turret.MuzzleAttachment
         };
 
-        var Base = CreateSentryBase(player, Physics, propName, turret.GlowColor, Pos);
-        var Sentry = CreateSentry(player, Physics, propName, turret.Model,
-            turret.MuzzleParticle, turret.Range, turret.Rate, turret.Damage, turret.KnockBack,
-            turret.FireAnim, turret.TurretFireSound, turret.MuzzleAttachment, turret.laserColor,
-            turret.GlowColor, Pos);
+        _globals.TurretData[turretHandle.Raw] = turretData;
+        turretSet.Add(turretHandle.Raw);
 
-        turretSet.Add(Physics.Index);
+        var Base = CreateSentryBase(player, turretHandle, propName, turretData.GlowColor, Pos);
+        var Sentry = CreateSentry(player, turretHandle, propName, turretData, Pos); 
+
 
         return Physics;
     }
 
-    public CBaseModelEntity CreateSentryBase(IPlayer player, CPhysicsPropOverride Physics, string propName, string GlowColor, SwiftlyS2.Shared.Natives.Vector Pos)
+    /*
+     * turret.Model,
+            turret.MuzzleParticle, turret.Range, turret.Rate, turret.Damage, turret.KnockBack,
+            turret.FireAnim, turret.TurretFireSound, turret.MuzzleAttachment, turret.laserColor,
+            turret.GlowColor,
+
+     string Model,
+        string Particle, float Range, float Rate, float Damage, float KnockBack, string FireAnim, string FireSound,
+        string MuzzleAttachment, string laserColor, string GlowColor, 
+     */
+
+    public CBaseModelEntity CreateSentryBase(IPlayer player, CHandle<CPhysicsPropOverride> turretHandle, string propName, string GlowColor, SwiftlyS2.Shared.Natives.Vector Pos)
     {
+        if (!turretHandle.IsValid)
+            return null;
+
+        var Physics = turretHandle.Value;
+        if (Physics == null || !Physics.IsValid)
+            return null;
+
         var SentryBase = _core.EntitySystem.CreateEntityByDesignerName<CBaseModelEntity>("prop_dynamic_override");
         if (SentryBase == null)
             return null;
@@ -177,10 +198,15 @@ public class HanTurretS2Service
         return SentryBase;
     }
 
-    public CBaseModelEntity CreateSentry(IPlayer player, CPhysicsPropOverride Physics, string propName, string Model,
-        string Particle, float Range, float Rate, float Damage, float KnockBack, string FireAnim, string FireSound,
-        string MuzzleAttachment, string laserColor, string GlowColor, SwiftlyS2.Shared.Natives.Vector Pos)
+    public CBaseModelEntity CreateSentry(IPlayer player, CHandle<CPhysicsPropOverride> turretHandle, string propName, Turrets turretData, SwiftlyS2.Shared.Natives.Vector Pos)
     {
+        if (!turretHandle.IsValid)
+            return null;
+
+        var Physics = turretHandle.Value;
+        if (Physics == null || !Physics.IsValid)
+            return null;
+
         var Sentry = _core.EntitySystem.CreateEntityByDesignerName<CBaseModelEntity>("prop_dynamic_override");
         if (Sentry == null)
             return null;
@@ -191,24 +217,38 @@ public class HanTurretS2Service
         Sentry.Teleport(SentryPos, null, null);
         Sentry.DispatchSpawn();
 
-        string BaseName = propName + "_Sentry";
-        Sentry!.Entity!.Name = BaseName;
+        var SentryHandle = _core.EntitySystem.GetRefEHandle(Sentry);
+        if (!SentryHandle.IsValid)
+            return null;
 
-        Sentry.AcceptInput("SetParent", "!activator", Physics, Sentry);
+        var Sentryent = SentryHandle.Value;
+        if (Sentryent == null)
+            return null;
+
+        string BaseName = propName + "_Sentry";
+        Sentryent!.Entity!.Name = BaseName;
+
+        Sentryent.AcceptInput("SetParent", "!activator", Physics, Sentryent);
+
+        
 
         _core.Scheduler.NextTick(() =>
         {
-            Sentry.SetModel(Model);
-            Sentry.MaxHealth = 3000;
-            Sentry.Health = 3000;
-            _effect.SetGlow(Sentry, GlowColor);
-            _aiservice.SentryThink(player, Sentry, Range, Rate, Damage, KnockBack, FireAnim, FireSound, MuzzleAttachment, laserColor);
-            _effect.SetupMuzzle(Sentry, Particle, MuzzleAttachment);
+            if (Sentryent == null)
+                return;
+
+            Sentryent.SetModel(turretData.Model);
+            Sentryent.MaxHealth = 3000;
+            Sentryent.Health = 3000;
+            _effect.SetGlow(Sentryent, turretData.GlowColor);
+            _aiservice.SentryThink(player, SentryHandle, turretData.Range, turretData.Rate, turretData.Damage, turretData.KnockBack, turretData.FireAnim, turretData.TurretFireSound, turretData.MuzzleAttachment, turretData.laserColor);
+            _effect.SetupMuzzle(SentryHandle, turretData.MuzzleParticle, turretData.MuzzleAttachment);
         });
 
         return Sentry;
     }
 
+    /*
     public void RemoveTurretFromCount(IPlayer player, CPhysicsPropOverride entIndex, string turretName)
     {
         var entRef = _core.EntitySystem.GetRefEHandle(entIndex);
@@ -232,6 +272,7 @@ public class HanTurretS2Service
             }
         }
     }
+    */
 
     public Turret? GetTurretConfigByName(string name, ILogger? logger = null)
     {

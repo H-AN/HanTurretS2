@@ -3,6 +3,7 @@ using System.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SwiftlyS2.Shared;
+using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2.Shared.SchemaDefinitions;
 using static HanTurretS2.HanTurretGlobals;
@@ -24,22 +25,19 @@ public class HanTurretEffectService
         _helpers = helpers;
     }
 
-    public void SetupMuzzle(CBaseModelEntity Sentry, string effectname, string MuzzleAttachment)
+    public void SetupMuzzle(CHandle<CBaseModelEntity> sentryHandle, string effectname, string MuzzleAttachment)
     {
-        var entRef = _core.EntitySystem.GetRefEHandle(Sentry);
-        if (!entRef.IsValid)
+        if (!sentryHandle.IsValid)
+            return;
+
+        var sentry = sentryHandle.Value;
+        if (sentry == null || !sentry.IsValid)
             return;
 
         if (string.IsNullOrEmpty(MuzzleAttachment))
             return;
 
-        var entIndex = entRef.EntityIndex;
-
-        var RefValue = entRef.Value;
-        if (RefValue == null || !RefValue.IsValid)
-            return;
-
-        var sentryOrigin = RefValue.AbsOrigin;
+        var sentryOrigin = sentry.AbsOrigin;
         if (sentryOrigin == null)
             return;
 
@@ -63,8 +61,8 @@ public class HanTurretEffectService
             particleL.EffectName = effectname;
             particleL.DispatchSpawn();
             particleL.Teleport(Position, null, null);
-            particleL.AcceptInput("SetParent", "!activator", entRef.Value, particleL);
-            particleL.AcceptInput("SetParentAttachment", attachmentL, entRef.Value, null);
+            particleL.AcceptInput("SetParent", "!activator", sentry, particleL);
+            particleL.AcceptInput("SetParentAttachment", attachmentL, sentry, null);
 
         }
 
@@ -76,14 +74,14 @@ public class HanTurretEffectService
             particleR.EffectName = effectname;
             particleR.DispatchSpawn();
             particleR.Teleport(Position, null, null);
-            particleR.AcceptInput("SetParent", "!activator", entRef.Value, particleR);
-            particleR.AcceptInput("SetParentAttachment", attachmentR, entRef.Value, null);
+            particleR.AcceptInput("SetParent", "!activator", sentry, particleR);
+            particleR.AcceptInput("SetParentAttachment", attachmentR, sentry, null);
 
         }
 
         if (particleL != null || particleR != null)
         {
-            _globals.sentryParticles[entIndex] = new SentryParticles
+            _globals.sentryParticles[sentryHandle.Raw] = new SentryParticles
             {
                 ParticleL = particleL,
                 ParticleR = particleR,
@@ -91,15 +89,16 @@ public class HanTurretEffectService
         }
     }
 
-    public void ToggleMuzzle(CBaseModelEntity Sentry, float duration)
+    public void ToggleMuzzle(CHandle<CBaseModelEntity> sentryHandle, float duration)
     {
-        var entRef = _core.EntitySystem.GetRefEHandle(Sentry);
-        if (!entRef.IsValid)
+        if (!sentryHandle.IsValid)
             return;
 
-        var entIndex = entRef.EntityIndex;
+        var sentry = sentryHandle.Value;
+        if (sentry == null || !sentry.IsValid)
+            return;
 
-        if (!_globals.sentryParticles.TryGetValue(entIndex, out var particles))
+        if (!_globals.sentryParticles.TryGetValue(sentryHandle.Raw, out var particles))
         {
             //_core.Logger.LogInformation($"{_core.Localizer["MuzzleError"]}");
             return;
@@ -118,18 +117,19 @@ public class HanTurretEffectService
         }
     }
 
-    public void CreateTracer(CBaseModelEntity Sentry, IPlayer Target, string laserColor)
+    public void CreateTracer(CHandle<CBaseModelEntity> sentryHandle, IPlayer Target, string laserColor)
     {
-        var entRef = _core.EntitySystem.GetRefEHandle(Sentry);
-        if (!entRef.IsValid)
+        if (!sentryHandle.IsValid)
             return;
 
-        var entIndex = entRef.EntityIndex;
+        var sentry = sentryHandle.Value;
+        if (sentry == null || !sentry.IsValid)
+            return;
 
         if (string.IsNullOrEmpty(laserColor))
             return;
 
-        if (!_globals.sentryParticles.TryGetValue(entIndex, out var particles))
+        if (!_globals.sentryParticles.TryGetValue(sentryHandle.Raw, out var particles))
         {
             //_core.Logger.LogInformation($"{_core.Localizer["TracerError"]}");
             return;
@@ -141,10 +141,6 @@ public class HanTurretEffectService
 
         var TargetOrigin = TargetPawn.AbsOrigin;
         if (TargetOrigin == null)
-            return;
-
-        var RefValve = entRef.Value;
-        if (RefValve == null || !RefValve.IsValid)
             return;
 
         var TargetPos = new SwiftlyS2.Shared.Natives.Vector(

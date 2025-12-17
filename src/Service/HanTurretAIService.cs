@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SwiftlyS2.Shared;
+using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2.Shared.SchemaDefinitions;
 
@@ -26,29 +27,31 @@ public class HanTurretAIService
         _combat = combat;
     }
 
-    public void SentryThink(IPlayer Owner, CBaseModelEntity Sentry, float Range, float Rate, float Damage, float KnockBack, string FireAnim, string FireSound, string MuzzleAttachment, string laserColor)
+    public void SentryThink(IPlayer Owner, CHandle<CBaseModelEntity> SentryHandle, float Range, float Rate, float Damage, float KnockBack, string FireAnim, string FireSound, string MuzzleAttachment, string laserColor)
     {
-        var entRef = _core.EntitySystem.GetRefEHandle(Sentry);
-        if (!entRef.IsValid)
+        if (!SentryHandle.IsValid)
             return;
 
-        var entIndex = entRef.EntityIndex;
-        if (_globals.SentryThink.TryGetValue(entIndex, out var task))
+        var Sentry = SentryHandle.Value;
+        if (Sentry == null || !Sentry.IsValid)
+            return;
+
+        if (_globals.SentryThink.TryGetValue(SentryHandle.Raw, out var task))
         {
             task?.Cancel();
             task = null;
-            _globals.SentryThink.Remove(entIndex);
+            _globals.SentryThink.Remove(SentryHandle.Raw);
         }
 
-        _globals.SentryThink[entIndex] = _core.Scheduler.RepeatBySeconds(Rate, () =>
+        _globals.SentryThink[SentryHandle.Raw] = _core.Scheduler.RepeatBySeconds(Rate, () =>
         {
-            if (!entRef.IsValid || !_globals.TurretCanFire)
+            if (!Sentry.IsValid || !_globals.TurretCanFire)
             {
-                if (_globals.SentryThink.TryGetValue(entIndex, out var task))
+                if (_globals.SentryThink.TryGetValue(SentryHandle.Raw, out var task))
                 {
                     task?.Cancel();
                     task = null;
-                    _globals.SentryThink.Remove(entIndex);
+                    _globals.SentryThink.Remove(SentryHandle.Raw);
                 }
             }
 
@@ -81,12 +84,8 @@ public class HanTurretAIService
                 if (pawn.TeamNum == OwnerPawn.TeamNum)
                     continue;
 
-                var RefValue = entRef.Value;
-                if (RefValue == null || !RefValue.IsValid)
-                    continue;
-
                 var pOrigin = pawn.AbsOrigin;
-                var sOrigin = RefValue.AbsOrigin;
+                var sOrigin = Sentry.AbsOrigin;
                 if (pOrigin == null || sOrigin == null)
                     continue;
 
@@ -114,12 +113,8 @@ public class HanTurretAIService
                 if (closestPlayerPawn == null || !closestPlayerPawn.IsValid)
                     return;
 
-                var RefValue = entRef.Value;
-                if (RefValue == null || !RefValue.IsValid)
-                    return;
-
                 var cOrigin = closestPlayerPawn.AbsOrigin;
-                var sOrigin = RefValue.AbsOrigin;
+                var sOrigin = Sentry.AbsOrigin;
                 if (cOrigin == null || sOrigin == null)
                     return;
 
@@ -144,15 +139,15 @@ public class HanTurretAIService
 
                     if (closestDist <= fireRange)
                     {
-                        if (_helpers.GetAimPosition(RefValue, closestPlayer))
+                        if (_helpers.GetAimPosition(SentryHandle, closestPlayer))
                         {
                             Sentry.Teleport(null, new SwiftlyS2.Shared.Natives.QAngle(pitch, yaw, 0), null);
                             Sentry.AcceptInput("SetAnimation", $"{FireAnim}");
-                            _helpers.EmitSoundFromEntity(Sentry, $"{FireSound}");
-                            _effect.ToggleMuzzle(Sentry, 0.3f);
-                            _effect.CreateTracer(Sentry, closestPlayer, laserColor);
-                            _combat.ApplyDamage(Owner, closestPlayer, Sentry, Damage, DamageTypes_t.DMG_BULLET);
-                            _combat.ApplyKnockBack(Sentry, closestPlayer, KnockBack);
+                            _helpers.EmitSoundFromEntity(SentryHandle, $"{FireSound}");
+                            _effect.ToggleMuzzle(SentryHandle, 0.3f);
+                            _effect.CreateTracer(SentryHandle, closestPlayer, laserColor);
+                            _combat.ApplyDamage(Owner, closestPlayer, SentryHandle, Damage, DamageTypes_t.DMG_BULLET);
+                            _combat.ApplyKnockBack(SentryHandle, closestPlayer, KnockBack);
                         }
                     }
 
@@ -160,6 +155,6 @@ public class HanTurretAIService
             }
         });
 
-        _core.Scheduler.StopOnMapChange(_globals.SentryThink[entRef.EntityIndex]);
+        _core.Scheduler.StopOnMapChange(_globals.SentryThink[SentryHandle.Raw]);
     }
 }

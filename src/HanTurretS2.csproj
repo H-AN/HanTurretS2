@@ -8,6 +8,6 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="SwiftlyS2.CS2" Version="1.0.5-beta.34" /> 
+		<PackageReference Include="SwiftlyS2.CS2" Version="*" /> 
 	</ItemGroup>
 </Project>

@@ -12,7 +12,7 @@ namespace HanTurretS2;
 
 [PluginMetadata(
     Id = "HanTurretS2",
-    Version = "1.0.0",
+    Version = "1.0.1",
     Name = "H-AN 炮塔 for Sw2/H-AN Turret for Sw2",
     Author = "H-AN",
     Description = "CS2 炮塔/CS2 Turret")]

@@ -20,8 +20,15 @@ public class HanTurretCombatService
         _helpers = helpers;
     }
 
-    public void ApplyDamage(IPlayer attacker, IPlayer target, CBaseModelEntity sentry, float damageAmount, DamageTypes_t damageType = DamageTypes_t.DMG_BULLET)
+    public void ApplyDamage(IPlayer attacker, IPlayer target, CHandle<CBaseModelEntity> sentryHandle, float damageAmount, DamageTypes_t damageType = DamageTypes_t.DMG_BULLET)
     {
+        if (!sentryHandle.IsValid)
+            return;
+
+        var sentry = sentryHandle.Value;
+        if (sentry == null || !sentry.IsValid)
+            return;
+
         var AttackerPawn = attacker.PlayerPawn;
         if (AttackerPawn == null || !AttackerPawn.IsValid)
             return;
@@ -47,12 +54,19 @@ public class HanTurretCombatService
         target.TakeDamage(damageInfo);
     }
 
-    public void ApplyKnockBack(CBaseModelEntity sentry, IPlayer target, float force)
+    public void ApplyKnockBack(CHandle<CBaseModelEntity> sentryHandle, IPlayer target, float force)
     {
-        if(sentry == null || !sentry.IsValid || target == null || !target.IsValid || force <= 0)
+        if (!sentryHandle.IsValid)
             return;
 
-        var KnockBack = _helpers.CalculateKnockbackDirection(sentry, target, force);
+        var sentry = sentryHandle.Value;
+        if (sentry == null || !sentry.IsValid)
+            return;
+
+        if (target == null || !target.IsValid || force <= 0)
+            return;
+
+        var KnockBack = _helpers.CalculateKnockbackDirection(sentryHandle, target, force);
 
         var pawn = target.PlayerPawn;
         if (pawn == null || !pawn.IsValid)

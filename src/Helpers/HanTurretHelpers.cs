@@ -21,22 +21,21 @@ public class HanTurretHelpers
         _logger = logger;
     }
 
-    public SwiftlyS2.Shared.Natives.Vector CalculateKnockbackDirection(CBaseModelEntity sentry, IPlayer target, float force)
+    public SwiftlyS2.Shared.Natives.Vector CalculateKnockbackDirection(CHandle<CBaseModelEntity> sentryHandle, IPlayer target, float force)
     {
+        if (!sentryHandle.IsValid)
+            return new SwiftlyS2.Shared.Natives.Vector(0, 0, 0);
+
+        var Sentry = sentryHandle.Value;
+        if (Sentry == null || !Sentry.IsValid)
+            return new SwiftlyS2.Shared.Natives.Vector(0, 0, 0);
+
+        var sentryPos = Sentry.AbsOrigin;
+        if (sentryPos == null)
+            return new SwiftlyS2.Shared.Natives.Vector(0, 0, 0);
+
         var pawn = target.PlayerPawn;
         if (pawn == null || !pawn.IsValid)
-            return new SwiftlyS2.Shared.Natives.Vector(0, 0, 0);
-
-        var entRef = _core.EntitySystem.GetRefEHandle(sentry);
-        if (!entRef.IsValid)
-            return new SwiftlyS2.Shared.Natives.Vector(0, 0, 0);
-
-        var RefValue = entRef.Value;
-        if (RefValue == null || !RefValue.IsValid)
-            return new SwiftlyS2.Shared.Natives.Vector(0, 0, 0);
-
-        var sentryPos = RefValue.AbsOrigin;
-        if (sentryPos == null)
             return new SwiftlyS2.Shared.Natives.Vector(0, 0, 0);
 
         var targetPos = pawn.AbsOrigin;
@@ -60,32 +59,34 @@ public class HanTurretHelpers
     }
 
 
-    public void EmitSoundFromEntity(CBaseModelEntity Sentry, string SoundPath)
+    public void EmitSoundFromEntity(CHandle<CBaseModelEntity> sentryHandle, string SoundPath)
     {
-        var entRef = _core.EntitySystem.GetRefEHandle(Sentry);
-        if (!entRef.IsValid)
+        if (!sentryHandle.IsValid)
+            return;
+
+        var Sentry = sentryHandle.Value;
+        if (Sentry == null || !Sentry.IsValid)
             return;
 
         if (!string.IsNullOrEmpty(SoundPath))
         {
             var sound = new SwiftlyS2.Shared.Sounds.SoundEvent(SoundPath, 1.0f, 1.0f);
-            sound.SourceEntityIndex = (int)entRef.EntityIndex;
+            sound.SourceEntityIndex = (int)Sentry.Index;
             sound.Recipients.AddAllPlayers();
             _core.Scheduler.NextTick(() =>{sound.Emit();});
         }
     }
 
-    public bool GetAimPosition(CBaseModelEntity Sentry, IPlayer Target)
+    public bool GetAimPosition(CHandle<CBaseModelEntity> sentryHandle, IPlayer Target)
     {
-        var entRef = _core.EntitySystem.GetRefEHandle(Sentry);
-        if (!entRef.IsValid)
+        if (!sentryHandle.IsValid)
             return false;
 
-        var RefValue = entRef.Value;
-        if (RefValue == null || !RefValue.IsValid)
+        var Sentry = sentryHandle.Value;
+        if (Sentry == null || !Sentry.IsValid)
             return false;
 
-        var sentryOrigin = RefValue.AbsOrigin;
+        var sentryOrigin = Sentry.AbsOrigin;
         if (sentryOrigin == null)
             return false;
 

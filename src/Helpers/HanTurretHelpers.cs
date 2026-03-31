@@ -77,6 +77,24 @@ public class HanTurretHelpers
         }
     }
 
+    public void EmitSoundFromPhyEntity(CHandle<CPhysicsPropOverride> sentryHandle, string SoundPath)
+    {
+        if (!sentryHandle.IsValid)
+            return;
+
+        var Sentry = sentryHandle.Value;
+        if (Sentry == null || !Sentry.IsValid)
+            return;
+
+        if (!string.IsNullOrEmpty(SoundPath))
+        {
+            var sound = new SwiftlyS2.Shared.Sounds.SoundEvent(SoundPath, 1.0f, 1.0f);
+            sound.SourceEntityIndex = (int)Sentry.Index;
+            sound.Recipients.AddAllPlayers();
+            _core.Scheduler.NextTick(() => { sound.Emit(); });
+        }
+    }
+
     public bool GetAimPosition(CHandle<CBaseModelEntity> sentryHandle, IPlayer Target)
     {
         if (!sentryHandle.IsValid)

@@ -16,5 +16,12 @@
 	"MenuButtonMove": "移动",
 	"MenuButtonConfirm": "确认",
 	"MenuButtonCancel": "取消",
+	"TurretHudCanBreakage": "可以破坏",
+	"TurretHudCantBreakage": "无法破坏",
+	"TurretHudCanFix": "可以修理",
+	"TurretHudCantFix": "无法修理",
+	"TurretHudOwnerPlayer": "玩家 {0} 的 {1}",
+	"TurretHudLeftHealth": "剩余血量",
+	"TurretHudMaxHealth": "最大血量",
 	"TurretNameError": "未找到名为 {0} 的炮塔,请查看配置!"
 }

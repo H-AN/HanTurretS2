@@ -16,5 +16,12 @@
 	"MenuButtonMove": "Move",
 	"MenuButtonConfirm": "Confirm",
 	"MenuButtonCancel": "Cancel",
+    "TurretHudCanBreakage": "Can destroy",
+	"TurretHudCantBreakage": "Can't destroy",
+	"TurretHudCanFix": "Can repair",
+	"TurretHudCantFix": "Can't repair",
+	"TurretHudOwnerPlayer": "player {0} 's {1}",
+	"TurretHudLeftHealth": "Left Health",
+	"TurretHudMaxHealth": "Max Health",
 	"TurretNameError": "The turret named {0} was not found. Please check the configuration!"
 }

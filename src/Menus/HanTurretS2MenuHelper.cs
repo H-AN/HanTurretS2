@@ -48,7 +48,7 @@ public class HanTurretMenuHelper
             optionScrollStyle: MenuOptionScrollStyle.WaitingCenter
             );
         
-        menu.DefaultComment = HtmlGradient.GenerateGradientText("[W/S]", Color.Crimson) + HtmlGradient.GenerateGradientText($"{_core.Localizer["MenuButtonMove"]}", Color.White)
+        menu.Configuration.DefaultComment = HtmlGradient.GenerateGradientText("[W/S]", Color.Crimson) + HtmlGradient.GenerateGradientText($"{_core.Localizer["MenuButtonMove"]}", Color.White)
             + HtmlGradient.GenerateGradientText("[E]", Color.Crimson) + HtmlGradient.GenerateGradientText($"{_core.Localizer["MenuButtonConfirm"]}", Color.White)
             + HtmlGradient.GenerateGradientText("[SHIFT]", Color.Crimson) + HtmlGradient.GenerateGradientText($"{_core.Localizer["MenuButtonCancel"]}", Color.White)
             ;

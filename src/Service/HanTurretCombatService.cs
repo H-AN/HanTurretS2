@@ -60,19 +60,25 @@ public class HanTurretCombatService
             return;
 
         var sentry = sentryHandle.Value;
-        if (sentry == null || !sentry.IsValid)
+        if (sentry == null || !sentry.IsValid || !sentry.IsValidEntity)
             return;
 
         if (target == null || !target.IsValid || force <= 0)
             return;
 
-        var KnockBack = _helpers.CalculateKnockbackDirection(sentryHandle, target, force);
-
-        var pawn = target.PlayerPawn;
-        if (pawn == null || !pawn.IsValid)
+        var targetPawn = target.PlayerPawn;
+        if (targetPawn == null || !targetPawn.IsValid)
             return;
 
-        pawn.AbsVelocity = KnockBack;
+        var sentryRotation = sentry.AbsRotation;
+        if (sentryRotation == null)
+            return;
+
+        QAngle sentryAngle = sentryRotation.Value;
+        sentryAngle.ToDirectionVectors(out Vector vecKnockback, out _, out _);
+        var pushVelocity = vecKnockback * force;
+        var vel = targetPawn.AbsVelocity;
+        targetPawn.Teleport(null, null, vel + pushVelocity);
     }
 
 

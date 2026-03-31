@@ -1,3 +1,14 @@
-.vs
-bin
-obj
+.vs/
+
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+**/codex-obj/
+**/codex-bin/
+
+# Local workspace files
+/HanTurretS2.sln
+*.suo
+*.user

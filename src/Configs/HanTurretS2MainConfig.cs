@@ -11,5 +11,6 @@ public class HanTurretS2MainConfig
     public string MenuCommand { get; set; } = string.Empty;
     public string TurretBaseModel { get; set; } = string.Empty;
     public string TurretPhysboxModel { get; set; } = string.Empty;
+    public bool ShowTurretInfo { get; set; } = true;
 
 }

@@ -13,6 +13,9 @@ public class HanTurretS2Config
         public bool Enable { get; set; } = true;
         public string Name { get; set; } = string.Empty;
         public string Model { get; set; } = string.Empty;
+        public int Health { get; set; } = 0;
+        public bool Canbreakage { get; set; } = true;
+        public bool CanFixes { get; set; } = true;
         public float Range { get; set; } = 0f;
         public float Rate { get; set; } = 0f;
         public float Damage { get; set; } = 0f;

@@ -111,7 +111,7 @@ public class HanTurretMenu
                     var clicker = args.Player;
                     _core.Scheduler.NextTick(() =>
                     {
-                        if (!clicker.IsValid)
+                        if (!clicker.IsValid || !clicker.IsAlive || clicker.IsFakeClient)
                             return;
 
                         _service.CreateSentryPhysics(clicker, turretCfg.Name);

@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SwiftlyS2.Shared;
@@ -242,6 +241,77 @@ public class HanTurretEffectService
         beam.EndPos = endPos;
 
         beam.AddEntityIOEvent("Kill", "", null!, null!,  0.1f);
+    }
+
+    public CParticleSystem? CreateParticleAtPos(CHandle<CPhysicsPropOverride> phyHandle, string effectName)
+    {
+        if (!phyHandle.IsValid)
+            return null;
+
+        uint phyRaw = phyHandle.Raw;
+
+        if (!_globals.TurretPartsMap.TryGetValue(phyRaw, out var parts))
+            return null;
+
+        var particle = _core.EntitySystem.CreateEntityByDesignerName<CParticleSystem>("info_particle_system");
+        if (!particle.IsValid || !particle.IsValidEntity)
+            return null;
+
+        particle.StartActive = true;
+        particle.EffectName = effectName;
+        particle.AcceptInput("Start", "");
+        particle.DispatchSpawn();
+
+        var headHandle = new CHandle<CBaseModelEntity>(parts.head);
+        if (!headHandle.IsValid)
+            return null;
+
+        var HandleEntity = headHandle.Value;
+        if (HandleEntity == null || !HandleEntity.IsValid || !HandleEntity.IsValidEntity)
+            return null;
+
+        Vector pos = HandleEntity.AbsOrigin ?? Vector.Zero;
+
+        particle.Teleport(pos, QAngle.Zero, Vector.Zero);
+        particle.AcceptInput("SetParent", "!activator", HandleEntity, particle);
+        return particle;
+    }
+
+    public void CreateExplosionAtPos(CHandle<CPhysicsPropOverride> phyHandle)
+    {
+        if (!phyHandle.IsValid)
+            return;
+
+        uint phyRaw = phyHandle.Raw;
+
+        if (!_globals.TurretPartsMap.TryGetValue(phyRaw, out var parts))
+            return;
+
+        var particle = _core.EntitySystem.CreateEntityByDesignerName<CEnvParticleGlow>("env_particle_glow");
+        if (!particle.IsValid || !particle.IsValidEntity)
+            return;
+
+        var headHandle = new CHandle<CBaseModelEntity>(parts.head);
+        if (!headHandle.IsValid)
+            return;
+
+        var HandleEntity = headHandle.Value;
+        if (HandleEntity == null || !HandleEntity.IsValid || !HandleEntity.IsValidEntity)
+            return;
+
+        Vector pos = HandleEntity.AbsOrigin ?? Vector.Zero;
+
+        particle.StartActive = true;
+        particle.EffectName = "particles/explosions_fx/explosion_c4_short.vpcf";
+        particle.AlphaScale = 1150f;
+        particle.RadiusScale = 110f;
+        particle.SelfIllumScale = 0.5f;
+        particle.ColorTint = Color.Green;
+        particle.Teleport(pos, null, null);
+        particle.DispatchSpawn();
+        particle.AcceptInput("Start", 0);
+
+        _helpers.EmitSoundFromPhyEntity(phyHandle, "BaseGrenade.Explode");
     }
 
 }

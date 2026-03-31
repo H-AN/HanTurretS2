@@ -39,6 +39,9 @@ public class HanTurretS2Service
         if (player == null || !player.IsValid)
             return null;
 
+        if (player.IsFakeClient)
+            return null;
+
         var Controller = player.Controller;
         if (Controller == null || !Controller.IsValid)
             return null;
@@ -48,20 +51,21 @@ public class HanTurretS2Service
 
         SwiftlyS2.Shared.Natives.Vector Pos = _helpers.GetForwardPosition(player, 120f);
 
-        var TurretCfg = _config.CurrentValue;
         var turret = GetTurretConfigByName(turretName, _logger);
 
         if (turret == null)
             return null;
 
-        var SteamId = player.SteamID;
-        if (SteamId == 0)
+        ulong sessionId = player.SessionId;
+        if (sessionId == 0)
             return null;
 
-        if (!_globals.PlayerTurretCounts.TryGetValue(SteamId, out var turretDict))
+        _globals.PlayerSessionCache[player.PlayerID] = sessionId;
+
+        if (!_globals.PlayerTurretCounts.TryGetValue(sessionId, out var turretDict))
         {
             turretDict = new Dictionary<string, HashSet<uint>>();
-            _globals.PlayerTurretCounts[SteamId] = turretDict;
+            _globals.PlayerTurretCounts[sessionId] = turretDict;
         }
 
         if (!turretDict.TryGetValue(turretName, out var turretSet))
@@ -123,6 +127,9 @@ public class HanTurretS2Service
         {
             Name = turret.Name,
             Model = turret.Model,
+            Health = turret.Health > 0 ? turret.Health : 100,
+            Canbreakage = turret.Canbreakage,
+            CanFixes = turret.CanFixes,
             Range = turret.Range,
             Rate = turret.Rate,
             Damage = turret.Damage,
@@ -142,9 +149,31 @@ public class HanTurretS2Service
         _globals.TurretData[turretHandle.Raw] = turretData;
         turretSet.Add(turretHandle.Raw);
 
-        var Base = CreateSentryBase(player, turretHandle, propName, turretData.GlowColor, Pos);
-        var Sentry = CreateSentry(player, turretHandle, propName, turretData, Pos); 
+        _core.Scheduler.NextTick(() =>
+        {
+            if (Physics == null || !Physics.IsValid || !Physics.IsValidEntity)
+                return;
 
+            Physics.MaxHealth = turretData.Health;
+            Physics.MaxHealthUpdated();
+
+            Physics.Health = turretData.Health;
+            Physics.HealthUpdated();
+        });
+
+        var Base = CreateSentryBase(player, turretHandle, propName, turretData.GlowColor, Pos);
+        var Sentry = CreateSentry(player, turretHandle, propName, turretData, Pos);
+
+        var phyHandle = _core.EntitySystem.GetRefEHandle(Physics);
+        var baseHandle = _core.EntitySystem.GetRefEHandle(Base);
+        var headHandle = _core.EntitySystem.GetRefEHandle(Sentry);
+
+        if (phyHandle.IsValid && baseHandle.IsValid && headHandle.IsValid)
+        {
+            _globals.TurretPartsMap[phyHandle.Raw] = (headHandle.Raw, baseHandle.Raw);
+            _globals.TurretHeadToPhysics[headHandle.Raw] = phyHandle.Raw;
+            _globals.TurretBaseToPhysics[baseHandle.Raw] = phyHandle.Raw;
+        }
 
         return Physics;
     }
@@ -225,6 +254,20 @@ public class HanTurretS2Service
         if (Sentryent == null)
             return null;
 
+        ulong ownerSessionId = player.SessionId;
+        if (ownerSessionId == 0)
+            return null;
+
+        _globals.PlayerSessionCache[player.PlayerID] = ownerSessionId;
+
+        if (!_globals.TurretOwner.TryGetValue(ownerSessionId, out var set))
+        {
+            set = new HashSet<uint>();
+            _globals.TurretOwner[ownerSessionId] = set;
+        }
+        set.Add(turretHandle.Raw);
+        _globals.TurretToPlayer[turretHandle.Raw] = ownerSessionId;
+
         string BaseName = propName + "_Sentry";
         Sentryent!.Entity!.Name = BaseName;
 
@@ -241,7 +284,7 @@ public class HanTurretS2Service
             Sentryent.MaxHealth = 3000;
             Sentryent.Health = 3000;
             _effect.SetGlow(Sentryent, turretData.GlowColor);
-            _aiservice.SentryThink(player, SentryHandle, turretData.Range, turretData.Rate, turretData.Damage, turretData.KnockBack, turretData.FireAnim, turretData.TurretFireSound, turretData.MuzzleAttachment, turretData.laserColor);
+            _aiservice.SentryThink(ownerSessionId, SentryHandle, turretData.Range, turretData.Rate, turretData.Damage, turretData.KnockBack, turretData.FireAnim, turretData.TurretFireSound, turretData.MuzzleAttachment, turretData.laserColor);
             _effect.SetupMuzzle(SentryHandle, turretData.MuzzleParticle, turretData.MuzzleAttachment);
         });
 

@@ -73,7 +73,7 @@ public class HanTurretAIService
 
             foreach (var player in allPlayers)
             {
-                if (player == null || !player.IsValid || player.IsFakeClient)
+                if (player == null || !player.IsValid)
                     continue;
 
                 if (player.PlayerID == owner.PlayerID)

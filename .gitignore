@@ -1,4 +1,6 @@
 .vs/
+.vscode/
+.idea/
 
 # Build outputs
 bin/
@@ -12,3 +14,7 @@ obj/
 /HanTurretS2.sln
 *.suo
 *.user
+*.userosscache
+*.rsuser
+*.DotSettings.user
+TestResults/
